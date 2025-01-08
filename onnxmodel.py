@@ -18,14 +18,14 @@ import numpy as np
 # -*-coding: utf-8 -*-
 
 import os, sys
-sys.path.append("/work/LIB/CPP/onnx/libonnxruntime.so")
+sys.path.append("/work/LIB/CPP/export_onnx/libonnxruntime.so")
 import onnxruntime
 
 
 class ONNXModel():
     def __init__(self, onnx_file):
         self.onnx_session = onnxruntime.InferenceSession(onnx_file, providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider',
-                                                           'CPUExecutionProvider'])
+                                                                               'CPUExecutionProvider'])
 
         print(f"ONNX Runtime version: {onnxruntime.__version__}")
         print(f"Device: {onnxruntime.get_device()}")
@@ -34,6 +34,9 @@ class ONNXModel():
         self.input_name = self.get_input_name(self.onnx_session)
         self.output_name = self.get_output_name(self.onnx_session)
         self.print_IO()
+
+    def get_input_size(self):
+        return self.onnx_session.get_inputs()[0].shape[1:]
 
     def print_IO(self,):
         # 查看模型的输入信息

@@ -19,10 +19,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Convert ONNX model to RKNN format")
     parser.add_argument("--onnx_model", type=str, required=True, help="Path to the ONNX model.")
     parser.add_argument("--rknn_model", type=str, required=True, help="Path to save the RKNN model.")
-    parser.add_argument("--width", type=int, default=W, help="Width of the input image.")
-    parser.add_argument("--height", type=int, default=H, help="Height of the input image.")
     parser.add_argument("--image", type=str, required=True, help="Path to the input image.")
-    parser.add_argument("--rgb", type=bool, default=True, help="image is in color or gray.")
     return parser.parse_args()
 
 def test_dir(image_dir, rknn, output_dir, width, height, rgb):
@@ -48,7 +45,7 @@ def test_image(image_path, rknn, width, height, rgb):
     else:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img = np.expand_dims(img, 0)
-    inputs = [img]
+    inputs = [img,]
 
     start_time = time.time()
     outputs = rknn.inference(inputs, data_format='nhwc')
@@ -70,7 +67,8 @@ if __name__ == '__main__':
     output_dir = args.rknn_model
     MkdirSimple(output_dir)
 
-    ONNXModel(args.onnx_model)
+    modelonnx = ONNXModel(args.onnx_model)
+    c, height, width = modelonnx.get_input_size()
     # exit()
 
     # Create RKNN object
@@ -116,6 +114,6 @@ if __name__ == '__main__':
         exit(ret)
     print('done')
 
-    test_dir(args.image, rknn, os.path.dirname(output_dir), args.width, args.height, args.rgb)
+    test_dir(args.image, rknn, os.path.dirname(output_dir), width, height, c == 3)
 
     rknn.release()
