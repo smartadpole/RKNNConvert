@@ -18,7 +18,6 @@ H = 392
 def parse_args():
     parser = argparse.ArgumentParser(description="Convert ONNX model to RKNN format")
     parser.add_argument("--onnx_model", type=str, required=True, help="Path to the ONNX model.")
-    parser.add_argument("--rknn_model", type=str, required=True, help="Path to save the RKNN model.")
     parser.add_argument("--image", type=str, required=True, help="Path to the input image.")
     return parser.parse_args()
 
@@ -64,8 +63,8 @@ def test_image(image_path, rknn, width, height, rgb):
 
 if __name__ == '__main__':
     args = parse_args()
-    output_dir = args.rknn_model
-    MkdirSimple(output_dir)
+    output_file = args.onnx_model.replace('onnx', 'rknn')
+    MkdirSimple(output_file)
 
     modelonnx = ONNXModel(args.onnx_model)
     c, height, width = modelonnx.get_input_size()
@@ -99,7 +98,7 @@ if __name__ == '__main__':
 
     # Export rknn model
     print('--> Export rknn model')
-    ret = rknn.export_rknn(args.rknn_model)
+    ret = rknn.export_rknn(output_file)
     if ret != 0:
         print('Export rknn model failed!')
         exit(ret)
@@ -113,7 +112,8 @@ if __name__ == '__main__':
         print('Init runtime environment failed!')
         exit(ret)
     print('done')
+    print("export rknn to {}".format(output_file)
 
-    test_dir(args.image, rknn, os.path.dirname(output_dir), width, height, c == 3)
+    test_dir(args.image, rknn, os.path.dirname(output_file), width, height, c == 3)
 
     rknn.release()
