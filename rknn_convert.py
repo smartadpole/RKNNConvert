@@ -26,8 +26,8 @@ def test_dir(image_dir, rknn, output_dir, width, height, rgb):
     print("test image number: ", len(img_list))
     for file in img_list:
         image, depth = test_image(file, rknn, width, height, rgb)
-        depth_file = os.path.join(output_dir, 'depth', os.path.basename(file))
-        concat_file = os.path.join(output_dir, 'concat', os.path.basename(file))
+        depth_file = os.path.join(output_dir, 'depth_rknn', os.path.basename(file))
+        concat_file = os.path.join(output_dir, 'concat_rknn', os.path.basename(file))
         MkdirSimple(depth_file)
         MkdirSimple(concat_file)
         cv2.imwrite(concat_file, image)
@@ -63,7 +63,7 @@ def test_image(image_path, rknn, width, height, rgb):
 
 if __name__ == '__main__':
     args = parse_args()
-    output_file = args.onnx_model.replace('onnx', 'rknn')
+    output_file = args.onnx_model.replace('.onnx', '.rknn')
     MkdirSimple(output_file)
 
     modelonnx = ONNXModel(args.onnx_model)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     print('done')
 
     # Load model
-    ONNXModel(args.onnx_model)
+    modelonnx.print_IO()
     print('--> Loading model')
     ret = rknn.load_onnx(model=args.onnx_model)
     if ret != 0:
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     print('done')
 
     # Build model
-    ONNXModel(args.onnx_model)
+    modelonnx.print_IO()
     print('--> Building model')
     ret = rknn.build(do_quantization=False, dataset='./dataset.txt')
     if ret != 0:
@@ -112,8 +112,9 @@ if __name__ == '__main__':
         print('Init runtime environment failed!')
         exit(ret)
     print('done')
-    print("export rknn to {}".format(output_file)
+    print("export rknn to {}".format(output_file))
 
+    modelonnx.print_IO()
     test_dir(args.image, rknn, os.path.dirname(output_file), width, height, c == 3)
 
     rknn.release()
