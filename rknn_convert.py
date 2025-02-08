@@ -75,8 +75,11 @@ if __name__ == '__main__':
 
     # pre-process config
     print('--> config model')
-    rknn.config(mean_values=[x * 255 for x in [0.485, 0.456, 0.406]], std_values=[x * 255 for x in [0.229, 0.224, 0.225]], target_platform='rk3588')
+    rknn.config(mean_values=[x * 255 for x in [0.485, 0.456, 0.406]], std_values=[x * 255 for x in [0.229, 0.224, 0.225]], target_platform='rk3588'
+                , disable_rules=['gatherelements_to_conv']
+                )
     print('done')
+
 
     # Load model
     modelonnx.print_IO()
