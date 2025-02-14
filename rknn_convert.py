@@ -22,12 +22,14 @@ def parse_args():
     return parser.parse_args()
 
 def test_dir(image_dir, rknn, output_dir, width, height, rgb):
+    root_len = len(image_dir.rstrip('/'))
     img_list = ReadImageList(image_dir)
     print("test image number: ", len(img_list))
     for file in img_list:
+        name = file[root_len+1:]
         image, depth = test_image(file, rknn, width, height, rgb)
-        depth_file = os.path.join(output_dir, 'depth_rknn', os.path.basename(file))
-        concat_file = os.path.join(output_dir, 'concat_rknn', os.path.basename(file))
+        depth_file = os.path.join(output_dir, 'rknn', "depth", name)
+        concat_file = os.path.join(output_dir, 'rknn', "concat", name)
         MkdirSimple(depth_file)
         MkdirSimple(concat_file)
         cv2.imwrite(concat_file, image)
@@ -75,7 +77,7 @@ if __name__ == '__main__':
 
     # pre-process config
     print('--> config model')
-    rknn.config(mean_values=[x * 255 for x in [0.485, 0.456, 0.406]], std_values=[x * 255 for x in [0.229, 0.224, 0.225]], target_platform='rk3588'
+    rknn.config(mean_values=[x * 255 for x in [0.45, 0.45, 0.45]], std_values=[x * 255 for x in [0.225, 0.225, 0.225]], target_platform='rk3588'
                 , disable_rules=['gatherelements_to_conv']
                 )
     print('done')
